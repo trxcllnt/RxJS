@@ -1,3 +1,4 @@
+import {isObject} from './util/isObject';
 import {isFunction} from './util/isFunction';
 import {Observer, PartialObserver} from './Observer';
 import {Subscription} from './Subscription';
@@ -144,7 +145,17 @@ export class Subscriber<T> extends Subscription implements Observer<T> {
     this.destination.complete();
     this.unsubscribe();
   }
+
+  // for backwards compatability with <= Rx4
+  public onNext: (value: T) => void;
+  public onError: (error: any) => void;
+  public onCompleted: () => void;
 }
+
+// for backwards compatability with <= Rx4
+Subscriber.prototype.onNext = Subscriber.prototype.next;
+Subscriber.prototype.onError = Subscriber.prototype.error;
+Subscriber.prototype.onCompleted = Subscriber.prototype.complete;
 
 /**
  * We need this JSDoc comment for affecting ESDoc.
@@ -166,11 +177,12 @@ class SafeSubscriber<T> extends Subscriber<T> {
 
     if (isFunction(observerOrNext)) {
       next = (<((value: T) => void)> observerOrNext);
-    } else if (observerOrNext) {
+    } else if (isObject(observerOrNext)) {
       context = observerOrNext;
-      next = (<PartialObserver<T>> observerOrNext).next;
-      error = (<PartialObserver<T>> observerOrNext).error;
-      complete = (<PartialObserver<T>> observerOrNext).complete;
+      // for backwards compatability with <= Rx4
+      next = (<any> observerOrNext).onNext || (<PartialObserver<T>> observerOrNext).next;
+      error = (<any> observerOrNext).onError || (<PartialObserver<T>> observerOrNext).error;
+      complete = (<any> observerOrNext).onCompleted || (<PartialObserver<T>> observerOrNext).complete;
       if (isFunction(context.unsubscribe)) {
         this.add(<() => void> context.unsubscribe.bind(context));
       }

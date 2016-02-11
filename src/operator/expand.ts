@@ -1,4 +1,4 @@
-import {Observable} from '../Observable';
+import {Observable, ObservableInput} from '../Observable';
 import {Scheduler} from '../Scheduler';
 import {Operator} from '../Operator';
 import {Subscriber} from '../Subscriber';
@@ -19,7 +19,7 @@ import {subscribeToResult} from '../util/subscribeToResult';
  * @method expand
  * @owner Observable
  */
-export function expand<T, R>(project: (value: T, index: number) => Observable<R>,
+export function expand<T, R>(project: (value: T, index: number) => ObservableInput<R>,
                              concurrent: number = Number.POSITIVE_INFINITY,
                              scheduler: Scheduler = undefined): Observable<R> {
   concurrent = (concurrent || 0) < 1 ? Number.POSITIVE_INFINITY : concurrent;
@@ -28,12 +28,12 @@ export function expand<T, R>(project: (value: T, index: number) => Observable<R>
 }
 
 export interface ExpandSignature<T> {
-  (project: (value: T, index: number) => Observable<T>, concurrent?: number, scheduler?: Scheduler): Observable<T>;
-  <R>(project: (value: T, index: number) => Observable<R>, concurrent?: number, scheduler?: Scheduler): Observable<R>;
+  (project: (value: T, index: number) => ObservableInput<T>, concurrent?: number, scheduler?: Scheduler): Observable<T>;
+  <R>(project: (value: T, index: number) => ObservableInput<R>, concurrent?: number, scheduler?: Scheduler): Observable<R>;
 }
 
 export class ExpandOperator<T, R> implements Operator<T, R> {
-  constructor(private project: (value: T, index: number) => Observable<R>,
+  constructor(private project: (value: T, index: number) => ObservableInput<R>,
               private concurrent: number,
               private scheduler: Scheduler) {
   }
@@ -45,7 +45,7 @@ export class ExpandOperator<T, R> implements Operator<T, R> {
 
 interface DispatchArg<T, R> {
   subscriber: ExpandSubscriber<T, R>;
-  result: Observable<R>;
+  result: ObservableInput<R>;
   value: any;
   index: number;
 }
@@ -62,7 +62,7 @@ export class ExpandSubscriber<T, R> extends OuterSubscriber<T, R> {
   private buffer: any[];
 
   constructor(destination: Subscriber<R>,
-              private project: (value: T, index: number) => Observable<R>,
+              private project: (value: T, index: number) => ObservableInput<R>,
               private concurrent: number,
               private scheduler: Scheduler) {
     super(destination);

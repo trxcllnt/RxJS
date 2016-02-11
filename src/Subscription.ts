@@ -176,4 +176,8 @@ export class Subscription implements ISubscription {
       }
     }
   }
+
+  public dispose: () => void;
 }
+
+Subscription.prototype.dispose = Subscription.prototype.unsubscribe;

@@ -119,7 +119,19 @@ export class Subject<T> extends Observable<T> implements ISubscription {
     (<any>observable).source = this;
     return observable;
   }
+
+  // for backwards compatability with <= Rx4
+  public onNext: (value: T) => void;
+  public onError: (error: any) => void;
+  public onCompleted: () => void;
+  public dispose: () => void;
 }
+
+// for backwards compatability with <= Rx4
+Subject.prototype.onNext = Subject.prototype.next;
+Subject.prototype.onError = Subject.prototype.error;
+Subject.prototype.onCompleted = Subject.prototype.complete;
+Subject.prototype.dispose = Subject.prototype.unsubscribe;
 
 /**
  * @class AnonymousSubject<T>

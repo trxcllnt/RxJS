@@ -1,5 +1,6 @@
 import {expect} from 'chai';
 import * as Rx from '../../dist/cjs/Rx';
+import $$observable from 'symbol-observable';
 declare const {hot, cold, expectObservable, expectSubscriptions};
 
 declare const Symbol: any;
@@ -343,7 +344,7 @@ describe('Observable.prototype.expand', () => {
         }
       };
 
-      ish[Symbol.observable] = function () {
+      ish[$$observable] = function () {
         return this;
       };
       return ish;

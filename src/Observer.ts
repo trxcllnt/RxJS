@@ -1,8 +1,18 @@
+export interface Observer<T> {
+  isUnsubscribed?: boolean;
+  next: (value: T) => void;
+  error: (err: any) => void;
+  complete: () => void;
+}
+
 export interface NextObserver<T> {
   isUnsubscribed?: boolean;
   next: (value: T) => void;
   error?: (err: any) => void;
   complete?: () => void;
+  onNext?: (value: T) => void;
+  onError?: (err: any) => void;
+  onCompleted?: () => void;
 }
 
 export interface ErrorObserver<T> {
@@ -10,6 +20,9 @@ export interface ErrorObserver<T> {
   next?: (value: T) => void;
   error: (err: any) => void;
   complete?: () => void;
+  onNext?: (value: T) => void;
+  onError?: (err: any) => void;
+  onCompleted?: () => void;
 }
 
 export interface CompletionObserver<T> {
@@ -17,16 +30,49 @@ export interface CompletionObserver<T> {
   next?: (value: T) => void;
   error?: (err: any) => void;
   complete: () => void;
+
+  onNext?: (value: T) => void;
+  onError?: (err: any) => void;
+  onCompleted?: () => void;
 }
 
-export type PartialObserver<T> = NextObserver<T> | ErrorObserver<T> | CompletionObserver<T>;
-
-export interface Observer<T> {
+export interface LegacyNextObserver<T> {
   isUnsubscribed?: boolean;
-  next: (value: T) => void;
-  error: (err: any) => void;
-  complete: () => void;
+  next?: (value: T) => void;
+  error?: (err: any) => void;
+  complete?: () => void;
+  onNext: (value: T) => void;
+  onError?: (err: any) => void;
+  onCompleted?: () => void;
 }
+
+export interface LegacyErrorObserver<T> {
+  isUnsubscribed?: boolean;
+  next?: (value: T) => void;
+  error?: (err: any) => void;
+  complete?: () => void;
+  onNext?: (value: T) => void;
+  onError: (err: any) => void;
+  onCompleted?: () => void;
+}
+
+export interface LegacyCompletionObserver<T> {
+  isUnsubscribed?: boolean;
+  next?: (value: T) => void;
+  error?: (err: any) => void;
+  complete?: () => void;
+  onNext?: (value: T) => void;
+  onError?: (err: any) => void;
+  onCompleted: () => void;
+}
+
+export type PartialObserver<T> = Observer<T> |
+                                 NextObserver<T> |
+                                 ErrorObserver<T> |
+                                 CompletionObserver<T> |
+                                 LegacyNextObserver<T> |
+                                 LegacyErrorObserver<T> |
+                                 LegacyCompletionObserver<T>;
 
 export const empty: Observer<any> = {
   isUnsubscribed: true,

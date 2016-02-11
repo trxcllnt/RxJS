@@ -11,7 +11,7 @@ import $$observable from 'symbol-observable';
 export interface Subscribable<T> {
   subscribe(observerOrNext?: PartialObserver<T> | ((value: T) => void),
             error?: (error: any) => void,
-            complete?: () => void): AnonymousSubscription;
+            complete?: () => void): TeardownLogic;
 }
 
 export type SubscribableOrPromise<T> = Subscribable<T> | Promise<T>;
