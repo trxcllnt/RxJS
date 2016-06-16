@@ -51,7 +51,9 @@ describe('Observable.prototype.multicast', () => {
 
   it('should accept selectors to factory functions', () => {
     const source =      hot('-1-2-3----4-|');
-    const sourceSubs =     ['^           !'];
+    const sourceSubs =     ['^           !',
+                            '    ^       !',
+                            '        ^   !'];
     const multicasted = source.multicast(() => new Subject(),
       x => x.zip(x, (a, b) => (parseInt(a) + parseInt(b)).toString()));
     const subscriber1 = hot('a|           ').mergeMapTo(multicasted);
