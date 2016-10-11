@@ -291,4 +291,21 @@ describe('Observable.prototype.repeat', () => {
           done();
         });
   });
+
+  it('should repeat a synchronous source (multicasted and autoConnected) multiple times', (done: MochaDone) => {
+    const expected = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3];
+
+    Observable.of(1, 2, 3)
+      .multicast(() => new Rx.ReplaySubject<number>())
+      .autoConnect()
+      .repeat(5)
+      .subscribe(
+        (x: number) => { expect(x).to.equal(expected.shift()); },
+        (x) => {
+          done(new Error('should not be called'));
+        }, () => {
+          expect(expected.length).to.equal(0);
+          done();
+        });
+  });
 });

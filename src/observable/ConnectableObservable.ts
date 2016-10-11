@@ -49,6 +49,11 @@ export class ConnectableObservable<T> extends Observable<T> {
   refCount(): Observable<T> {
     return this.lift(new RefCountOperator<T>(this));
   }
+
+  autoConnect(): Observable<T> {
+    this.connect();
+    return this.lift(new RefCountOperator<T>(this));
+  }
 }
 
 export const connectableObservableDescriptor: PropertyDescriptorMap = {
@@ -57,7 +62,8 @@ export const connectableObservableDescriptor: PropertyDescriptorMap = {
   _subscribe: { value: (<any> ConnectableObservable.prototype)._subscribe },
   getSubject: { value: (<any> ConnectableObservable.prototype).getSubject },
   connect: { value: (<any> ConnectableObservable.prototype).connect },
-  refCount: { value: (<any> ConnectableObservable.prototype).refCount }
+  refCount: { value: (<any> ConnectableObservable.prototype).refCount },
+  autoConnect: { value: (<any> ConnectableObservable.prototype).autoConnect }
 };
 
 class ConnectableSubscriber<T> extends SubjectSubscriber<T> {

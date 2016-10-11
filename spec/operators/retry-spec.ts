@@ -209,4 +209,22 @@ describe('Observable.prototype.retry', () => {
           done(new Error('should not be called'));
         });
   });
+
+  it('should retry a synchronous source (multicasted and autoConnected) multiple times', (done: MochaDone) => {
+    const expected = [1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3];
+
+    Observable.of(1, 2, 3).concat(Observable.throw('bad!'))
+      .multicast(() => new Rx.ReplaySubject())
+      .autoConnect()
+      .retry(4)
+      .subscribe(
+        (x: number) => { expect(x).to.equal(expected.shift()); },
+        (err: any) => {
+          expect(err).to.equal('bad!');
+          expect(expected.length).to.equal(0);
+          done();
+        }, () => {
+          done(new Error('should not be called'));
+        });
+  });
 });
