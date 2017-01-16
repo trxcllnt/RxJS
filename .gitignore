@@ -15,6 +15,7 @@ tmp/
 coverage/
 img/
 spec-js/
+spec-zone-js/
 .nyc_output/
 
 # Misc

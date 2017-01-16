@@ -3,7 +3,6 @@ import { isObject } from './util/isObject';
 import { isFunction } from './util/isFunction';
 import { tryCatch } from './util/tryCatch';
 import { errorObject } from './util/errorObject';
-import { getZone } from './util/getZone';
 import { UnsubscriptionError } from './util/UnsubscriptionError';
 
 export interface AnonymousSubscription {
@@ -41,11 +40,6 @@ export class Subscription implements ISubscription {
    */
   public closed: boolean = false;
 
-  /**
-   * The `Zone` which was captured at the time `subscribe` was invoked.
-   * This is the `Zone` which will be used when invoking the `next`, `error', 'complete' callbacks.
-   */
-  protected _zone: Zone;
   private _subscriptions: ISubscription[];
 
   /**
@@ -53,7 +47,6 @@ export class Subscription implements ISubscription {
    * perform the disposal of resources when the `unsubscribe` method is called.
    */
   constructor(unsubscribe?: () => void) {
-    this._zone = getZone();
     this._subscriptions = null;
     if (unsubscribe) {
       (<any> this)._unsubscribe = unsubscribe;
@@ -81,8 +74,7 @@ export class Subscription implements ISubscription {
     (<any> this)._subscriptions = null;
 
     if (isFunction(_unsubscribe)) {
-      // Ensure that the subscription cleanup callback runs in the Subscription zone.
-      let trial = tryCatch(_unsubscribe, this._zone).call(this);
+      let trial = tryCatch(_unsubscribe).call(this);
       if (trial === errorObject) {
         hasErrors = true;
         errors = errors || (
@@ -100,8 +92,7 @@ export class Subscription implements ISubscription {
       while (++index < len) {
         const sub = _subscriptions[index];
         if (isObject(sub)) {
-          // Ensure that the subscription cleanup callback runs in the Subscription zone.
-          let trial = tryCatch(sub.unsubscribe, sub._zone).call(sub);
+          let trial = tryCatch(sub.unsubscribe).call(sub);
           if (trial === errorObject) {
             hasErrors = true;
             errors = errors || [];

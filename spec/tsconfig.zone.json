@@ -8,7 +8,7 @@
         "target": "es5",
         "module": "commonjs",
         "moduleResolution": "node",
-        "outDir": "../spec-js",
+        "outDir": "../spec-zone-js",
         "lib": [
             "es5",
             "es2015.core",
@@ -23,7 +23,6 @@
         "tabSize": 2
     },
     "exclude": [
-        "Zone-spec.ts",
         "support/mocha-setup-node.js",
         "support/mocha.sauce.gruntfile.js",
         "support/mocha.sauce.runner.js",

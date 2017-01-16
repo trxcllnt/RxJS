@@ -4,7 +4,6 @@ import { Subscriber } from './Subscriber';
 import { Subscription, AnonymousSubscription, TeardownLogic } from './Subscription';
 import { root } from './util/root';
 import { toSubscriber } from './util/toSubscriber';
-import { getZone } from './util/getZone';
 import { IfObservable } from './observable/IfObservable';
 import { ErrorObservable } from './observable/ErrorObservable';
 import { $$observable } from './symbol/observable';
@@ -30,17 +29,8 @@ export class Observable<T> implements Subscribable<T> {
 
   protected source: Observable<any>;
   protected operator: Operator<any, T>;
-  /**
-   * The `Zone` which was captured at the time `Observable` got created.
-   * This is the `Zone` which will be used when invoking the `Observable` callbacks.
-   */
-  private _zone: Zone;
 
   /**
-   * Note about `zone.js`: When `zone.js` is loaded the `Observable` will capture the `Zone` on
-   * construction and then ensure that the `subscribe` function as well as the `TeardowLogic`
-   * execute in the `Zone` which was current an the time of the constructor call.
-   *
    * @constructor
    * @param {Function} subscribe the function that is  called when the Observable is
    * initially subscribed to. This function is given a Subscriber, to which new values
@@ -48,7 +38,6 @@ export class Observable<T> implements Subscribable<T> {
    * `complete` can be called to notify of a successful completion.
    */
   constructor(subscribe?: <R>(this: Observable<T>, subscriber: Subscriber<R>) => TeardownLogic) {
-    this._zone = getZone();
     if (subscribe) {
       this._subscribe = subscribe;
     }
@@ -72,9 +61,6 @@ export class Observable<T> implements Subscribable<T> {
    * Creates a new Observable, with this Observable as the source, and the passed
    * operator defined as the new observable's operator.
    *
-   * Note about `zone.js`: When `zone.js` is loaded the all operator callback function will execute
-   * in the `Zone` which was current when the operator was registered using `lift` method.
-   *
    * @method lift
    * @param {Operator} operator the operator defining the operation to take on the observable
    * @return {Observable} a new observable with the Operator applied
@@ -89,10 +75,6 @@ export class Observable<T> implements Subscribable<T> {
   /**
    * Registers handlers for handling emitted values, error and completions from the observable, and
    * executes the observable's subscriber function, which will take action to set up the underlying data stream
-   *
-   * Note about `zone.js`: When `zone.js` is loaded the `Observable` will capture the `Zone` on
-   * invocation to `subscribe` and then ensure that the `next`, `error` and `complete` callbacks
-   * execute in the `Zone` which was current at the time of `subscribe` invocation.
    *
    * @method subscribe
    * @param {PartialObserver|Function} observerOrNext (optional) either an observer defining all functions to be called,
@@ -111,25 +93,10 @@ export class Observable<T> implements Subscribable<T> {
 
     const { operator } = this;
     const sink = toSubscriber(observerOrNext, error, complete);
-    // Only grab a zone if we Zone exists and it is different from the current zone.
-    const zone = this._zone && this._zone !== getZone() ? this._zone : null;
-
     if (operator) {
-      if (zone) {
-        // Current Zone is different from the intended zone.
-        // Restore the zone before invoking the operator.
-        zone.run(operator.call, operator, [sink, this.source]);
-      } else {
         operator.call(sink, this.source);
-      }
     } else {
-      if (zone) {
-        // Current Zone is different from the intended zone.
-        // Restore the zone before invoking the subscribe callback.
-        zone.run(() => sink.add(this._subscribe(sink)));
-      } else {
         sink.add(this._subscribe(sink));
-      }
     }
 
     if (sink.syncErrorThrowable) {

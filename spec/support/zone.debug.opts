@@ -1,6 +1,8 @@
+--require zone.js
+--require ./dist/cjs/add/zone
 --require source-map-support/register
---require spec-js/helpers/testScheduler-ui.js
---ui spec-js/helpers/testScheduler-ui.js
+--require spec-zone-js/helpers/testScheduler-ui.js
+--ui spec-zone-js/helpers/testScheduler-ui.js
 
 --reporter dot
 --bail

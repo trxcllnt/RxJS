@@ -1,0 +1,14 @@
+--require zone.js
+--require ./dist/cjs/add/zone
+--require source-map-support/register
+--require spec-zone-js/helpers/testScheduler-ui.js
+--ui spec-zone-js/helpers/testScheduler-ui.js
+
+--reporter dot
+
+--full-trace
+--check-leaks
+--globals WebSocket,FormData,XDomainRequest,ActiveXObject
+
+--recursive
+--timeout 5000

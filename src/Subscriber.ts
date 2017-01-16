@@ -1,5 +1,4 @@
 import { isFunction } from './util/isFunction';
-import {getZone} from './util/getZone';
 import { Observer, PartialObserver } from './Observer';
 import { Subscription } from './Subscription';
 import { empty as emptyObserver } from './Observer';
@@ -93,13 +92,7 @@ export class Subscriber<T> extends Subscription implements Observer<T> {
    */
   next(value?: T): void {
     if (!this.isStopped) {
-      if (this._zone && this._zone != getZone()) {
-        // Current Zone is different from the intended zone.
-        // Restore the zone before `next`ing.
-        this._zone.run(this._next, this, [value]);
-      } else {
-        this._next(value);
-      }
+      this._next(value);
     }
   }
 
@@ -113,13 +106,7 @@ export class Subscriber<T> extends Subscription implements Observer<T> {
   error(err?: any): void {
     if (!this.isStopped) {
       this.isStopped = true;
-      if (this._zone && this._zone != getZone()) {
-        // Current Zone is different from the intended zone.
-        // Restore the zone before `error`ing.
-        this._zone.run(this._error, this, [err]);
-      } else {
-        this._error(err);
-      }
+      this._error(err);
     }
   }
 
@@ -132,13 +119,7 @@ export class Subscriber<T> extends Subscription implements Observer<T> {
   complete(): void {
     if (!this.isStopped) {
       this.isStopped = true;
-      if (this._zone && this._zone != getZone()) {
-        // Current Zone is different from the intended zone.
-        // Restore the zone before `complete`ing.
-        this._zone.run(this._complete, this);
-      } else {
-        this._complete();
-      }
+      this._complete();
     }
   }
 
